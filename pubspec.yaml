@@ -41,6 +41,8 @@ dependencies:
   persistent_bottom_nav_bar: ^4.0.2
   shared_preferences: ^2.0.5
   sqflite: ^2.0.0+3
+  flutter_secure_storage: ^4.1.0
+  flutter_native_splash: ^1.1.7+1
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,9 @@ flutter:
     - family: Aileron
       fonts:
         - asset: assets/fonts/Aileron-Black.otf
+    - family: bree
+      fonts:
+        - asset: assets/fonts/BreeSerif-Regular.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #

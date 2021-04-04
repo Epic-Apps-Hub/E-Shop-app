@@ -9,6 +9,7 @@ import 'package:shop_app/constants.dart';
 import 'package:shop_app/repos/categories/categoryRepo.dart';
 import 'package:shop_app/views/FavoriteScreen.dart';
 import 'package:shop_app/views/HomeScreen.dart';
+import 'package:shop_app/views/auth/unauthed.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -27,11 +28,9 @@ class _MainScreenState extends State<MainScreen> {
         child: FavScreen(mainPageCtx: context),
       ),
       Container(
-        color: Colors.blue,
-      ),
-      Container(
         color: Colors.red,
       ),
+     UnAuthed(mainPageCtx:context),
     ];
   }
 
