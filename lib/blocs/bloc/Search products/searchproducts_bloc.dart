@@ -19,7 +19,7 @@ class SearchproductsBloc extends Bloc<SearchproductsEvent, SearchproductsState> 
    if(event is SearchProducts){
      yield SearchLoading();
     var products = await searchRepo.getProductsByKeyword(event.searchKeyword);
-    if(products==Null){
+    if(products==null){
       yield SearchFailed('an error occured');
     }
     yield SearchLoaded(products);

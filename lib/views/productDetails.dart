@@ -2,18 +2,23 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:hive/hive.dart';
 import 'package:shop_app/constants.dart';
+import 'package:shop_app/models/order.dart';
 import 'package:shop_app/models/product.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:shop_app/repos/faborites/db.dart';
-import '../blocs/bloc/favs/bloc/favorites_bloc.dart';
+import 'package:shop_app/repos/favorites/hiveDb.dart';
+import 'package:hive_flutter/hive_flutter.dart' as hflut;
+import 'package:shop_app/views/orders/ordersScreen.dart';
 
 class ProductDetails extends StatefulWidget {
+  final mainpageCTX;
   final Product product;
 
-  const ProductDetails({Key key, this.product}) : super(key: key);
+  const ProductDetails({Key key, this.product, this.mainpageCTX})
+      : super(key: key);
 
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
@@ -21,9 +26,8 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsState extends State<ProductDetails> {
   @override
-  void initState() {
-    BlocProvider.of<FavoritesBloc>(context).add(ChackFav(widget.product.id));
-    super.initState();
+  void dispose() {
+    super.dispose();
   }
 
   //    final bloc = FavoritesBloc();
@@ -35,8 +39,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     return SingleChildScrollView(
       child: Material(
         child: Container(
-          height: _height,
-          color: Colors.white,
+          height: _height * .94,
+          color: Color(0xffF9FAFE),
           width: _width,
           child: Stack(
             children: [
@@ -51,7 +55,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Swiper(
                             layout: SwiperLayout.DEFAULT,
                             itemWidth: _width,
-                            itemHeight: 300,
+                            itemHeight: 280,
                             itemCount: widget.product.images.length,
                             autoplay: false,
                             itemBuilder: (ctx, ind) {
@@ -68,7 +72,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             },
                             pagination: new SwiperPagination(
                                 margin:
-                                    new EdgeInsets.symmetric(vertical: 40.0)),
+                                    new EdgeInsets.symmetric(vertical: 60.0)),
                           ),
                         ),
                         Positioned(
@@ -99,9 +103,28 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 },
                               ),
                             )),
-                        BlocBuilder<FavoritesBloc, FavoritesState>(
-                          builder: (context, state) {
-                            if (state is FavoritesInitial) {
+                        hflut.WatchBoxBuilder(
+                            box: Hive.box('myBox'),
+                            builder: (ctx, box) {
+                              // ignore: deprecated_member_use
+                              List<String> favs = new List<String>();
+                              for (var i = 0; i < box.length; i++) {
+                                var fav = box.getAt(i);
+
+                                favs.add(fav.id);
+                              }
+                              print(favs);
+
+                              /*      .watch(key: 'id')
+
+                                  .contains(widget.product.id).then((value) => print(value.toString()+"value printed"));*/
+                              bool isFavorite =
+                                  favs.contains(widget.product.id);
+
+                              int indexOfFav = favs.indexOf(widget.product.id);
+
+                              print(indexOfFav);
+
                               return Positioned(
                                   top: 20,
                                   right: 20,
@@ -109,16 +132,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     backgroundColor:
                                         Colors.white.withOpacity(.3),
                                     radius: 25,
-                                  ));
-                            } else if (state is FavoriteCheckLoaded) {
-                              return Positioned(
-                                  top: 20,
-                                  right: 20,
-                                  child: CircleAvatar(
-                                    backgroundColor:
-                                        Colors.white.withOpacity(.3),
-                                    radius: 25,
-                                    child: state.isFav
+                                    child: isFavorite
                                         ? IconButton(
                                             color: Colors.white,
                                             icon: Icon(
@@ -126,10 +140,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                                               color: Colors.white,
                                             ),
                                             onPressed: () {
-                                              BlocProvider.of<FavoritesBloc>(
-                                                      context)
-                                                  .add(DeleteFav(
-                                                      widget.product));
+                                              HiveRepo().deleteFav(indexOfFav);
+                                              favs.removeAt(indexOfFav);
+                                              setState(() {});
                                             },
                                           )
                                         : IconButton(
@@ -139,16 +152,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                                               color: Colors.white,
                                             ),
                                             onPressed: () {
-                                              BlocProvider.of<FavoritesBloc>(
-                                                      context)
-                                                  .add(AddFav(widget.product));
+                                              HiveRepo().addFav(widget.product);
+                                              setState(() {});
                                             },
                                           ),
                                   ));
-                            }
-                            return Container();
-                          },
-                        )
+                            })
                       ],
                     ),
                   ],
@@ -159,7 +168,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 children: [
                   DelayedDisplay(
                     child: Container(
-                      height: _height * .66,
+                      height: _height * .62,
                       width: _width,
                       decoration: BoxDecoration(
                           color: Colors.white,
@@ -259,20 +268,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                           SizedBox(
                             height: 20,
                           ),
-                          /*"brand": "apple",
-                          "price": 999,
-                          "discount": "-5%",
-                          "rating": 5,
-                          "numReviews": 0,
-                          "isFeatured": false,
-                          "_id": "60666037a7a56c0015f0de70",
-                          "color": "Silver",
-                          "imageHash": "LdJ*bdxu},t3ZzxsjZRk^*xZW?Rl",
-                          "name": "Iphone 12 pro",
-                          "description": "Released 2020, October 23",
-                          "category": "605cfec87e0f5e130c41f754",
-                          "countInStock": 80,
-                          "dateCreated": "2021-04-02T00:07:19.479Z",*/
                           Padding(
                             padding: const EdgeInsets.only(left: 18),
                             child: Row(
@@ -306,47 +301,164 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 textAlign: TextAlign.justify,
                                 style: TextStyle(
                                     color: Colors.grey,
-                                    fontSize: 17,
+                                    fontSize: 15,
                                     fontFamily: 'Raleway',
                                     fontWeight: FontWeight.w700),
                               ),
                             ),
                           ),
                           SizedBox(
-                            height: _height * .08,
+                            height: _height * .07,
                           ),
-                          DelayedDisplay(
-                            fadeIn: true,
-                            delay: Duration(milliseconds: 800),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 28.0),
-                              child: Container(
-                                width: _width,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: mainColor,
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.shopping_bag_outlined,
-                                          color: Colors.white),
-                                      SizedBox(
-                                        width: 12,
-                                      ),
-                                      Text('Add to cart',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              letterSpacing: .2,
-                                              fontFamily: 'Raleway'))
-                                    ],
+                          Container(
+                            height: _height * .165,
+                            width: _width,
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  bottom: 0,
+                                  child: DelayedDisplay(
+                                    fadeIn: true,
+                                    delay: Duration(milliseconds: 800),
+                                    child: hflut.WatchBoxBuilder(
+                                        box: Hive.box("OrdersBox"),
+                                        builder: (ctx, box) {
+                                          List<String> orders =
+                                              new List<String>();
+                                          for (var i = 0; i < box.length; i++) {
+                                            OfflineOrder fav = box.getAt(i);
+
+                                            orders.add(fav.id);
+                                          }
+                                          print(orders);
+
+                                          bool isOrdered = orders
+                                              .contains(widget.product.id);
+
+                                          int indexOfOrder =
+                                              orders.indexOf(widget.product.id);
+
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 0),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                if (isOrdered) {
+                                                  HiveRepo().deleteOrder(
+                                                      indexOfOrder);
+                                                } else {
+                                                  print(
+                                                    orders.length.toString(),
+                                                  );
+                                                  HiveRepo().addOfflineOrder(
+                                                      widget.product, 1);
+                                                }
+                                              },
+                                              child: Container(
+                                                width: _width,
+                                                height: 80,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(25),
+                                                  color: Color(0xffF4F6FD),
+                                                ),
+                                                child: Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 28.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        isOrdered
+                                                            ? Text(
+                                                                'Added to cart',
+                                                                style: TextStyle(
+                                                                    color: Color(
+                                                                        0xff35354E),
+                                                                    fontSize:
+                                                                        19,
+                                                                    letterSpacing:
+                                                                        .2,
+                                                                    fontFamily:
+                                                                        'Raleway'))
+                                                            : Row(
+                                                                children: [
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        right:
+                                                                            5.0),
+                                                                    child: Text(
+                                                                      "+",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            24,
+                                                                        fontFamily:
+                                                                            'Raleway',
+                                                                        color: Color(
+                                                                            0xff35354E),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                      'Add to Cart',
+                                                                      style: TextStyle(
+                                                                          color: Color(
+                                                                              0xff35354E),
+                                                                          fontSize:
+                                                                              19,
+                                                                          letterSpacing:
+                                                                              .2,
+                                                                          fontFamily:
+                                                                              'Raleway')),
+                                                                ],
+                                                              )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }),
                                   ),
                                 ),
-                              ),
+                                Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (ctx) =>
+                                                        OrdersScreen(
+                                                          mainPageContext:
+                                                              widget
+                                                                  .mainpageCTX,
+                                                        )));
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            width: 80,
+                                            child: Icon(
+                                              FontAwesome5.shopping_cart,
+                                              color: Colors.white,
+                                            ),
+                                            decoration: BoxDecoration(
+                                                color: Color(0xff35354E),
+                                                borderRadius:
+                                                    BorderRadius.circular(23)),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                              ],
                             ),
                           )
                         ],
@@ -361,10 +473,8 @@ class _ProductDetailsState extends State<ProductDetails> {
       ),
     );
   }
-
-  Future checkFavs(Product product) async {}
 }
-
+/*
 class Fav extends StatefulWidget {
   final Product product;
 
@@ -393,7 +503,7 @@ class _FavState extends State<Fav> {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          DBProvider.db.newClient(widget.product);
+                       //   DBProvider.db.newClient(widget.product);
                           setState(() {});
                         },
                       )
@@ -404,11 +514,11 @@ class _FavState extends State<Fav> {
                           color: Colors.red,
                         ),
                         onPressed: () {
-                          DBProvider.db.deleteClient(widget.product.id);
+                         // DBProvider.db.deleteClient(widget.product.id);
                           setState(() {});
                         },
                       ),
               ));
         });
   }
-}
+}*/

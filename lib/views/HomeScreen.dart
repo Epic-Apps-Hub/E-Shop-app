@@ -1,4 +1,5 @@
 import 'package:after_layout/after_layout.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,9 @@ import './CategoryProductsPage.dart';
 
 class HomeScreen extends StatefulWidget {
   final BuildContext mainPageContext;
-
-  const HomeScreen({Key key, this.mainPageContext}) : super(key: key);
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  const HomeScreen({Key key, this.mainPageContext, this.scaffoldKey})
+      : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -43,27 +45,34 @@ class _HomeScreenState extends State<HomeScreen>
         brightness: Brightness.dark,
         backgroundColor: mainColor,
         elevation: 0,
-        title: Row(
-          children: [
-            Image(
-              image: AssetImage('assets/logo.png'),
-              height: 30,
-            ),
-            Text(
-              "Shop App.",
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Aileron',
+        title: FadeInLeft(
+                  child: Row(
+            children: [
+              Image(
+                image: AssetImage('assets/logo.png'),
+                height: 30,
               ),
-            ),
-          ],
+              Text(
+                "Shop App.",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Aileron',
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           InkWell(
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: Image(
-                image: AssetImage('assets/menuIcon.png'),
+            onTap: () {
+              widget.scaffoldKey.currentState.openEndDrawer();
+            },
+            child: FadeInRight(
+                          child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Image(
+                  image: AssetImage('assets/menuIcon.png'),
+                ),
               ),
             ),
           )
@@ -73,81 +82,82 @@ class _HomeScreenState extends State<HomeScreen>
         child: Center(
           child: ListView(
             children: [
-              Container(
-                height: _height * .15,
-                width: _width,
-                decoration: BoxDecoration(
-                    color: mainColor,
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(45),
-                        bottomRight: Radius.circular(45))),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 25,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (ctx) => BlocProvider(
-                                      create: (context) =>
-                                          SearchproductsBloc(ProductSearch()),
-                                      child: SearchPage(
-                                        mainPageCtx: widget.mainPageContext,
-                                      ))));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Colors.white),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Icon(
-                                      Icons.search,
-                                      color: mainColor,
-                                    ),
-                                  ),
-                                  /*   Container(
-                                      width: _width * .7,
-                                      child: TextField(enabled: false,
-                                      enableSuggestions:true,
-                                      
-                                        decoration: InputDecoration(
-                                            labelText: "Search Products...",labelStyle: TextStyle(
-                                          color: mainColor.withOpacity(.4),
-                                        ),focusColor: mainColor),
-                                      ),
-                                    ),*/
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 20, bottom: 20),
-                                    child: Text(
-                                      "Search Products...",
-                                      style: TextStyle(
-                                        color: mainColor.withOpacity(.4),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: _width * .4,
-                                  )
-                                ],
-                              )),
+               Container(
+                  height: _height * .15,
+                  width: _width,
+                  decoration: BoxDecoration(
+                      color: mainColor,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(45),
+                          bottomRight: Radius.circular(45))),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 25,
                         ),
-                      )
-                    ],
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (ctx) => BlocProvider(
+                                        create: (context) =>
+                                            SearchproductsBloc(ProductSearch()),
+                                        child: SearchPage(
+                                          mainPageCtx: widget.mainPageContext,
+                                        ))));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: Colors.white),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Icon(
+                                        Icons.search,
+                                        color: mainColor,
+                                      ),
+                                    ),
+                                    /*   Container(
+                                        width: _width * .7,
+                                        child: TextField(enabled: false,
+                                        enableSuggestions:true,
+                                        
+                                          decoration: InputDecoration(
+                                              labelText: "Search Products...",labelStyle: TextStyle(
+                                            color: mainColor.withOpacity(.4),
+                                          ),focusColor: mainColor),
+                                        ),
+                                      ),*/
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 20, bottom: 20),
+                                      child: Text(
+                                        "Search Products...",
+                                        style: TextStyle(
+                                          color: mainColor.withOpacity(.4),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: _width * .4,
+                                    )
+                                  ],
+                                )),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              
               BlocBuilder<CategoriesBloc, CategoriesState>(
                 builder: (context, state) {
                   if (state is FetchLoading) {
@@ -172,74 +182,79 @@ class _HomeScreenState extends State<HomeScreen>
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (ctx, index) {
                             return Builder(
-                              builder: (ctx) => InkWell(
-                                onTap: () {
-                                  pushNewScreen(context,
-                                      withNavBar: true,
-                                      screen: BlocProvider(
-                                        create: (ctx) => ProductsBloc(
-                                            FetchProductsByCategory()),
-                                        child: CategoryProducts(
-                                          category: state.categories[index],
-                                          mainPageCtx: widget.mainPageContext,
-                                        ),
-                                      ));
-                                  /*  Navigator.push(
-                                        context,
-                                        CupertinoPageRoute(
-                                            builder: (_) => BlocProvider(
-                                                  create: (ctx) => ProductsBloc(
-                                                      FetchProductsByCategory()),
-                                                  child: CategoryProducts(
-                                                    category:
-                                                        state.categories[index],
-                                                  ),
-                                                )));*/
-                                },
-                                child: Container(
-                                  height: _height * .25,
-                                  width: _width,
-                                  child: Center(
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 28.0),
-                                          child: Container(
-                                              width: _width,
-                                              height: _height * .19,
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: OctoImage(
-                                                  image:
-                                                      CachedNetworkImageProvider(
-                                                          state
-                                                              .categories[index]
-                                                              .icon),
-                                                  placeholderBuilder:
-                                                      OctoPlaceholder.blurHash(
-                                                          state
-                                                              .categories[index]
-                                                              .imageHash),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                            child: Text(
-                                              state.categories[index].name,
-                                              style: TextStyle(
-                                                  color: mainColor,
-                                                  fontFamily: 'Aileron',
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
+                              builder: (ctx) => FadeInUp(
+                                child: InkWell(
+                                  onTap: () {
+                                    pushNewScreen(context,
+                                        withNavBar: true,
+                                        screen: BlocProvider(
+                                          create: (ctx) => ProductsBloc(
+                                              FetchProductsByCategory()),
+                                          child: CategoryProducts(
+                                            category: state.categories[index],
+                                            mainPageCtx: widget.mainPageContext,
                                           ),
-                                        )
-                                      ],
+                                        ));
+                                    /*  Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              builder: (_) => BlocProvider(
+                                                    create: (ctx) => ProductsBloc(
+                                                        FetchProductsByCategory()),
+                                                    child: CategoryProducts(
+                                                      category:
+                                                          state.categories[index],
+                                                    ),
+                                                  )));*/
+                                  },
+                                  child: Container(
+                                    height: _height * .25,
+                                    width: _width,
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 28.0),
+                                            child: Container(
+                                                width: _width,
+                                                height: _height * .19,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child: OctoImage(
+                                                    image:
+                                                        CachedNetworkImageProvider(
+                                                            state
+                                                                .categories[
+                                                                    index]
+                                                                .icon),
+                                                    placeholderBuilder:
+                                                        OctoPlaceholder
+                                                            .blurHash(state
+                                                                .categories[
+                                                                    index]
+                                                                .imageHash),
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                )),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Center(
+                                              child: Text(
+                                                state.categories[index].name,
+                                                style: TextStyle(
+                                                    color: mainColor,
+                                                    fontFamily: 'Aileron',
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

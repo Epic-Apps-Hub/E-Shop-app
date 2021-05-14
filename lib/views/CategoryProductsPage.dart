@@ -11,7 +11,7 @@ import 'package:shop_app/constants.dart';
 import 'package:shop_app/models/category.dart';
 import 'package:shop_app/views/productDetails.dart';
 import '../views/errorPage.dart';
-import '../blocs/bloc/favs/bloc/favorites_bloc.dart';
+
 class CategoryProducts extends StatefulWidget {
   final BuildContext mainPageCtx;
   final Category category;
@@ -71,15 +71,11 @@ class _CategoryProductsState extends State<CategoryProducts>
                               return Container(
                                 width: _width,
                                 height: _height,
-                                child: BlocProvider(
-                                  create: (context) => FavoritesBloc(),
-                                  child: ProductDetails(
-                                    product: state.prods[index],
-                                  ),
+                                child: ProductDetails(
+                                  product: state.prods[index],mainpageCTX: widget.mainPageCtx,
                                 ),
                               );
                             });
-               
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),

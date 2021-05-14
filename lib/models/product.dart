@@ -49,7 +49,7 @@ class Product {
   DateTime dateCreated;
   int v;
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
+  factory Product.fromJson(Map<dynamic, dynamic> json) => Product(
         richDescription: json["richDescription"],
         imageUrl: json["imageUrl"],
         images: List<dynamic>.from(json["images"].map((x) => x)),

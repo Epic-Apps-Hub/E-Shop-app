@@ -4,6 +4,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loading/indicator/ball_scale_indicator.dart';
+import 'package:loading/loading.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:shop_app/blocs/bloc/Search%20products/searchproducts_bloc.dart';
@@ -38,11 +40,10 @@ class _SearchPageState extends State<SearchPage> {
           style: TextStyle(color: Colors.white),
           keyboardType: TextInputType.text,
           onSubmitted: (value) {
-            if(value!=null||value.length!=0){
- BlocProvider.of<SearchproductsBloc>(context)
-                .add(SearchProducts(value));
+            if (value != null || value.length != 0) {
+              BlocProvider.of<SearchproductsBloc>(context)
+                  .add(SearchProducts(value));
             }
-        
           },
           decoration: InputDecoration(
               hintText: "Search Products...",
@@ -75,22 +76,11 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               );
             } else if (state is SearchLoading) {
-              Center(
-                child: Spin(
-                  animate: true,spins: 15,
-                  infinite: true,
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * .6,
-                    child: Center(
-                      child: Image(
-                        color: mainColor,
-                        image: AssetImage(
-                          "assets/search.png",
-                        ),
-                        height: 80,
-                      ),
-                    ),
-                  ),
+              return Center(
+                child: Loading(
+                  color: mainColor,
+                  indicator: BallScaleIndicator(),
+                  size: 120,
                 ),
               );
             } else if (state is SearchLoaded) {
